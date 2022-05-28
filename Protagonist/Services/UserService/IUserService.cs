@@ -1,4 +1,4 @@
-namespace Protagonist;
+namespace Protagonist.Services.UserService;
 
 public interface IUserService
 {

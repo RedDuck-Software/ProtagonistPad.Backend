@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Protagonist;
 using Protagonist.Providers;
+using Protagonist.Services.UserService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ builder.Services.AddDbContext<ProjectsDb>(options =>
     options.UseSqlite(connectionString ?? throw new InvalidOperationException());
 });
 builder.Services.AddControllers();
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddScoped<ProjectProvider>();
@@ -28,7 +30,6 @@ builder.Services.AddSwaggerGen(options => {
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey
     });
-
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

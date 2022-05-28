@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using Protagonist;
+using Protagonist.Services.UserService;
 
 namespace JwtWebApiTutorial.Controllers
 {
@@ -12,7 +13,7 @@ namespace JwtWebApiTutorial.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private static readonly User _user = new User();
+        private static readonly User _user = new ();
         private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
 

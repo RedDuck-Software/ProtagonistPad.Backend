@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Protagonist.Models;
-using Protagonist;
 
 namespace Protagonist.Providers;
 
@@ -18,7 +17,6 @@ public class ProjectProvider
 
     public async Task<IEnumerable<ProjectModel>> GetAll()
     {
-        Console.WriteLine("ddd");
         return await _projectsDb.Projects.ToListAsync();
     }
 

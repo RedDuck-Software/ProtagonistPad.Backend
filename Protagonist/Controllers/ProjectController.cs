@@ -15,7 +15,7 @@ public class ProjectController : ControllerBase
         _projectProvider = projectProvider;
     }
     
-    [HttpGet]
+    [HttpGet("project-list")]
     public Task<IEnumerable<ProjectModel>> Get()
     {
         return _projectProvider.GetAll();
@@ -28,17 +28,17 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public Task Get(int id)
+    public Task<ProjectModel> Get(int id)
     {
         return _projectProvider.GetById(id);
     }
-    [HttpPost, Authorize(Roles="Admin")]
+    [HttpPost("create-project")]
     public Task Create(ProjectModel projectModel)
     {
         return _projectProvider.CreateProject(projectModel);
     }
 
-    [HttpPut, Authorize(Roles="Admin")]
+    [HttpPut("update-project"), Authorize(Roles="Admin")]
     public Task Update(ProjectModel projectModel)
     {
         return _projectProvider.UpdateProject(projectModel);

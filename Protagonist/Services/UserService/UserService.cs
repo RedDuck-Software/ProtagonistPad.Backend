@@ -1,7 +1,6 @@
 using System.Security.Claims;
-using Protagonist;
 
-namespace Protagonist
+namespace Protagonist.Services.UserService
 {
     public class UserService : IUserService
     {

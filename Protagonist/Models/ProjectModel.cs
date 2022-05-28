@@ -1,5 +1,5 @@
 namespace Protagonist.Models;
-
+// ReSharper disable once MemberCanBePrivate.Global
 public class ProjectModel
 {
     public int Id { get; set; }
@@ -11,10 +11,8 @@ public class ProjectModel
     public int Duration { get; set; }
     public decimal TokenPrice { get; set; }
     public string? Address { get; set; }
-    public string UserTelegram { get; set; }
-#pragma warning disable CS8618
+    public string? UserTelegram { get; set; }
     public ProjectModel() { }
-#pragma warning restore CS8618
     public ProjectModel(ProjectModel projectModel, int currentId)
     {
         Id = currentId;
