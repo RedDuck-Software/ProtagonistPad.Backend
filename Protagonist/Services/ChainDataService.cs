@@ -2,7 +2,7 @@
 
 public class ChainDataService
 {
-    public string? Url { get; } = "https://bsc.getblock.io/mainnet/?api_key=49e3ec5a-e609-4106-afa2-2b5e2bb30b30";
+    public string? Url { get; } = "http://testchain.nethereum.com:8545";
     public string? PrivateKey { get; } = "0x7580e7fb49df1c861f0050fae31c2224c6aba908e116b8da44ee8cd927b990b0";
     public long ChainId { get; }= 444444444500;
 }

@@ -8,6 +8,7 @@ using Protagonist;
 using Protagonist.Providers;
 using Protagonist.Services;
 using Protagonist.Services.UserService;
+using Protagonist.Translated_Code;
 
 var builder = WebApplication.CreateBuilder(args);
 

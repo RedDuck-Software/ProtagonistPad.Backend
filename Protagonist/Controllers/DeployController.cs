@@ -4,6 +4,7 @@ using Protagonist.Services;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using Protagonist.Providers;
+using Protagonist.Translated_Code;
 
 namespace Protagonist.Controllers;
 
@@ -18,8 +19,8 @@ public class DeployController : ControllerBase
         _chainDataService = chainDataService;
         _projectProvider = projectProvider;
     }
-    [HttpPost("deploy-project")]
-    public async Task<IActionResult> Create(int id, string abi, string bytecode)
+    [HttpPost("deploy-project-by-abi-bytecode")]
+    public async Task<IActionResult> DeployProject(int id, string abi, string bytecode)
     {
         var url = _chainDataService.Url;
         var privateKey = _chainDataService.PrivateKey;
@@ -32,7 +33,7 @@ public class DeployController : ControllerBase
         {
             var estimateGas = await web3.Eth.DeployContract.EstimateGasAsync(abi, bytecode, senderAddress);
             receipt = await web3.Eth.DeployContract.SendRequestAndWaitForReceiptAsync(abi,
-                bytecode, senderAddress, estimateGas, null);
+                bytecode, senderAddress, estimateGas);
         }
         catch(Exception ex)
         {
@@ -49,5 +50,19 @@ public class DeployController : ControllerBase
         deployedProject.Status = true;
         await _projectProvider.UpdateProject(deployedProject);
         return Ok();
+    }
+
+    [HttpPost()]
+    public async Task DeployProjectViaData(string addressFrom, string gas, decimal valueAmount, decimal busd,
+        string launchedToken, decimal hardCap, decimal softCap)
+    {
+        var url = _chainDataService.Url;
+        var privateKey = _chainDataService.PrivateKey;
+        var chainId = _chainDataService.ChainId;
+        var account = new Account(privateKey, chainId);
+        var web3 = new Web3(new Account(privateKey, chainId), url);
+        var senderAddress = account.Address;
+        await web3.Eth.DeployContract.SendRequestAsync(ProLaunchpad.ABI, ProLaunchpad.BYTE_CODE, addressFrom, gas, valueAmount, busd,
+            launchedToken, hardCap, softCap, DateTime.Now, DateTime.Now);
     }
 }
