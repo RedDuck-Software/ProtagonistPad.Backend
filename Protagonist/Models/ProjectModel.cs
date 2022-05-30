@@ -12,6 +12,7 @@ public class ProjectModel
     public decimal TokenPrice { get; set; }
     public string? Address { get; set; }
     public string? UserTelegram { get; set; }
+    public bool? Status { get; set; } = false;
     public ProjectModel() { }
     public ProjectModel(ProjectModel projectModel, int currentId)
     {
@@ -24,5 +25,6 @@ public class ProjectModel
         TokenPrice = projectModel.TokenPrice;
         Address = projectModel.Address;
         UserTelegram = projectModel.UserTelegram;
+        Status = false;
     }
 }

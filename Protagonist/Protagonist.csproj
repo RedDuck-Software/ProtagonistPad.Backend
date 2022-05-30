@@ -13,6 +13,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="7.0.0-preview.4.22229.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0-preview.4.22229.2" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.14.1" />
+    <PackageReference Include="Nethereum.Accounts" Version="4.5.0" />
+    <PackageReference Include="Nethereum.Web3" Version="4.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.14.1" />

@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Protagonist;
 using Protagonist.Providers;
+using Protagonist.Services;
 using Protagonist.Services.UserService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,7 @@ builder.Services.AddDbContext<ProjectsDb>(options =>
 {
     options.UseSqlite(connectionString ?? throw new InvalidOperationException());
 });
+builder.Services.AddScoped<ChainDataService>();
 builder.Services.AddControllers();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddEndpointsApiExplorer();
@@ -58,11 +60,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
