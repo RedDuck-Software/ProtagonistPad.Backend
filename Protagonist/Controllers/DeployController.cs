@@ -1,8 +1,6 @@
 ﻿using Example.Contracts.ProLaunchpad.ContractDefinition;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nethereum.RPC.Eth.DTOs;
-using Nethereum.Signer;
 using Protagonist.Services;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
@@ -24,40 +22,35 @@ public class DeployController : ControllerBase
     }
     
     [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<string>> DeployProjectViaData(int id, int softCap, int hardCap, string busd, string launchedToken, int saleStartTime, int saleEndTime, int gas)
+    public async Task<ActionResult<string>> DeployProjectViaData(int id)
     {
-        var account = new Account(_chainDataService.PrivateKey, Chain.Rinkeby);
-        var web3 = new Web3(account, _chainDataService.Url);
-        if (softCap >= hardCap || busd[1] != 'x' || launchedToken[1] != 'x' || saleEndTime <= saleStartTime || busd.Length != 42 || launchedToken.Length != 42)
+        var project = _projectProvider.GetById(id).Result;
+        if (project == null)
         {
-            return BadRequest("Incorrect data");
+            return BadRequest();
         }
-        var proLaunchpadDeployment = new ProLaunchpadDeployment(ProLaunchpadDeploymentBase.BYTECODE)
+        var account = new Account(_chainDataService.PrivateKey, 5);
+        var web3 = new Web3(account, _chainDataService.Url);
+        var proLaunchpadDeployment = new ProLaunchpadDeployment(ProLaunchpadDeploymentBase.Bytecode)
         {
             FromAddress = account.Address,
-            SoftCap = softCap,
-            HardCap = hardCap,
-            BUSD = busd,
-            LaunchedToken = launchedToken,
-            SaleStartTime = saleStartTime,
-            SaleEndTime = saleEndTime,
-            Gas = gas
+            SoftCap = project.SoftCap,
+            HardCap = project.HardCap,
+            BUSD = _chainDataService.BusdAddress,
+            LaunchedToken = project.Address,
+            SaleStartTime = project.SaleStartTime,
+            SaleEndTime = project.SaleEndTime, 
         };
         var transaction = await web3.Eth.GetContractDeploymentHandler<ProLaunchpadDeployment>().SendRequestAndWaitForReceiptAsync(proLaunchpadDeployment);
         if (transaction.Succeeded())
         {
-            var project = await _projectProvider.GetById(id);
-            if (project == null)
-            {
-                project = new ProjectModel
-                    {
-                        Address = transaction.ContractAddress, Id = id, ProjectName = "project" + id, HardCap = hardCap, SoftCap = softCap
-                    };
-                await _projectProvider.ApplyProject(project);
-            }
             project.Address = transaction.ContractAddress;
             project.Status = ProjectStatus.Approved;
+            await _projectProvider.UpdateProject(project);
+        }
+        else
+        {
+            project.Status = ProjectStatus.Error;
             await _projectProvider.UpdateProject(project);
         }
         return transaction.ContractAddress;

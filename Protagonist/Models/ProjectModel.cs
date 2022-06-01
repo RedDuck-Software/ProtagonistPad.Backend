@@ -3,16 +3,19 @@ namespace Protagonist.Models;
 public class ProjectModel
 {
     public int Id { get; set; }
-    public string? UserName { get; set; }
-    public string? ProjectName { get; set; }
-    public string? ProjectDescription { get; set; }
-    public int HardCap { get; set; }
+    public string UserName { get; set; } = string.Empty;
+    public string ProjectName { get; set; } = string.Empty;
+    public string ProjectDescription { get; set; } = string.Empty;
+    public int HardCap { get; set; } 
     public int SoftCap { get; set; }
     public int Duration { get; set; }
     public decimal TokenPrice { get; set; }
-    public string? Address { get; set; }
-    public string? UserTelegram { get; set; }
-    public ProjectStatus Status { get; set; }
+    public string Address { get; set; } = string.Empty;
+    public string UserTelegram { get; set; } = string.Empty;
+    public ProjectStatus Status { get; set; } = ProjectStatus.Pending;
+    public int SaleStartTime { get; set; }
+    public int SaleEndTime { get; set; }
+
     public ProjectModel() { }
     public ProjectModel(ProjectModel projectModel, int currentId)
     {
@@ -25,12 +28,17 @@ public class ProjectModel
         TokenPrice = projectModel.TokenPrice;
         Address = projectModel.Address;
         UserTelegram = projectModel.UserTelegram;
+        SaleStartTime = projectModel.SaleStartTime;
+        SaleEndTime = projectModel.SaleEndTime;
         Status = ProjectStatus.Pending;
     }
 }
+//1655274256
+//1654074256
 public enum ProjectStatus
 {
     Approved,
     Rejected,
-    Pending
+    Pending,
+    Error
 }

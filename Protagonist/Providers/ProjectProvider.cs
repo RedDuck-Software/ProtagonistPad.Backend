@@ -17,6 +17,11 @@ public class ProjectProvider : IProjectProvider
         _projectsDb = projectsDb;
     }
     
+    public async Task<ProjectModel?> GetById(int id)
+    {
+        return await _projectsDb.Projects.FindAsync(id);
+    }
+    
     public async Task<IEnumerable<ProjectModel>> GetAll()
     {
         return await _projectsDb.Projects.ToListAsync();
@@ -35,11 +40,6 @@ public class ProjectProvider : IProjectProvider
         await _projectsDb.SaveChangesAsync();
     }
     
-    public async Task<ProjectModel?> GetById(int id)
-    {
-        return await _projectsDb.Projects.FindAsync(id);
-    }
-    
     public async Task UpdateProject(ProjectModel projectModel)
     {
         var project = await _projectsDb.Projects.FindAsync(projectModel.Id);
@@ -53,10 +53,9 @@ public class ProjectProvider : IProjectProvider
         project.SoftCap = projectModel.SoftCap;
         project.ProjectDescription = projectModel.ProjectDescription;
         project.ProjectName = projectModel.ProjectName;
-        
         await _projectsDb.SaveChangesAsync();
     }
-    
+
     public async Task RejectProject(int id)
     {
         var project = await _projectsDb.Projects.FindAsync(id);

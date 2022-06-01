@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Protagonist.Models;
 using Protagonist.Providers;
+using Protagonist.Validation;
 
 namespace Protagonist.Controllers;
 
@@ -44,16 +45,24 @@ public class ProjectController : ControllerBase
         return _projectProvider.GetById(id);
     }
     
-    [HttpPost("create-project")]
-    public Task ApplyProject(ProjectModel projectModel)
+    [HttpPost("apply-project")]
+    public async Task<ActionResult> ApplyProject(ProjectModel projectModel)
     {
-        return _projectProvider.ApplyProject(projectModel);
+        var validator = new ProjectModelValidator();
+        var result = await validator.ValidateAsync(projectModel);
+        if (!result.IsValid)
+        {
+            return BadRequest(result.Errors);
+        }
+        Console.WriteLine("Valid: " + result.IsValid);
+        await _projectProvider.ApplyProject(projectModel);
+        return Ok();
     }
 
     [HttpPut("update-project"), Authorize(Roles="Admin")]
     public Task Update(ProjectModel projectModel)
     {
-        return _projectProvider.UpdateProject(projectModel);
+        return Task.FromResult(Ok(_projectProvider.UpdateProject(projectModel)));
     }
     
     [HttpDelete("{id:int}"), Authorize(Roles="Admin")]
