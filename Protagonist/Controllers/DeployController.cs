@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Example.Contracts.ProLaunchpad.ContractDefinition;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Nethereum.RPC.Eth.DTOs;
+using Nethereum.Signer;
 using Protagonist.Services;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
+using Protagonist.Models;
 using Protagonist.Providers;
-using Protagonist.Translated_Code;
 
 namespace Protagonist.Controllers;
 
@@ -19,50 +22,47 @@ public class DeployController : ControllerBase
         _chainDataService = chainDataService;
         _projectProvider = projectProvider;
     }
-    [HttpPost("deploy-project-by-abi-bytecode")]
-    public async Task<IActionResult> DeployProject(int id, string abi, string bytecode)
+    
+    [HttpPost]
+    [Authorize]
+    public async Task<ActionResult<string>> DeployProjectViaData(int id, int softCap, int hardCap, string busd, string launchedToken, int saleStartTime, int saleEndTime, int gas)
     {
-        var url = _chainDataService.Url;
-        var privateKey = _chainDataService.PrivateKey;
-        var chainId = _chainDataService.ChainId;
-        var account = new Account(privateKey, chainId);
-        var web3 = new Web3(new Account(privateKey, chainId), url);
-        var senderAddress = account.Address;
-        TransactionReceipt receipt;
-        try
+        var account = new Account(_chainDataService.PrivateKey, Chain.Rinkeby);
+        var web3 = new Web3(account, _chainDataService.Url);
+        if (softCap >= hardCap || busd[1] != 'x' || launchedToken[1] != 'x' || saleEndTime <= saleStartTime || busd.Length != 42 || launchedToken.Length != 42)
         {
-            var estimateGas = await web3.Eth.DeployContract.EstimateGasAsync(abi, bytecode, senderAddress);
-            receipt = await web3.Eth.DeployContract.SendRequestAndWaitForReceiptAsync(abi,
-                bytecode, senderAddress, estimateGas);
+            return BadRequest("Incorrect data");
         }
-        catch(Exception ex)
+        var proLaunchpadDeployment = new ProLaunchpadDeployment(ProLaunchpadDeploymentBase.BYTECODE)
         {
-            Console.WriteLine(ex);
-            return BadRequest();
+            FromAddress = account.Address,
+            SoftCap = softCap,
+            HardCap = hardCap,
+            BUSD = busd,
+            LaunchedToken = launchedToken,
+            SaleStartTime = saleStartTime,
+            SaleEndTime = saleEndTime,
+            Gas = gas
+        };
+        var transaction = await web3.Eth.GetContractDeploymentHandler<ProLaunchpadDeployment>().SendRequestAndWaitForReceiptAsync(proLaunchpadDeployment);
+        if (transaction.Succeeded())
+        {
+            var project = await _projectProvider.GetById(id);
+            if (project == null)
+            {
+                project = new ProjectModel
+                    {
+                        Address = transaction.ContractAddress, Id = id, ProjectName = "project" + id, HardCap = hardCap, SoftCap = softCap
+                    };
+                await _projectProvider.CreateProject(project);
+            }
+            project.Address = transaction.ContractAddress;
+            project.Status = true;
+            await _projectProvider.UpdateProject(project);
         }
-        Console.WriteLine("Contract deployed at address: " + receipt.ContractAddress);
-        Console.WriteLine(receipt.ContractAddress);
-
-        var deployedProject = await _projectProvider.GetById(id);
-        if (deployedProject == null) return BadRequest();
-        
-        deployedProject.Address = receipt.ContractAddress;
-        deployedProject.Status = true;
-        await _projectProvider.UpdateProject(deployedProject);
-        return Ok();
-    }
-
-    [HttpPost()]
-    public async Task DeployProjectViaData(string addressFrom, string gas, decimal valueAmount, decimal busd,
-        string launchedToken, decimal hardCap, decimal softCap)
-    {
-        var url = _chainDataService.Url;
-        var privateKey = _chainDataService.PrivateKey;
-        var chainId = _chainDataService.ChainId;
-        var account = new Account(privateKey, chainId);
-        var web3 = new Web3(new Account(privateKey, chainId), url);
-        var senderAddress = account.Address;
-        await web3.Eth.DeployContract.SendRequestAsync(ProLaunchpad.ABI, ProLaunchpad.BYTE_CODE, addressFrom, gas, valueAmount, busd,
-            launchedToken, hardCap, softCap, DateTime.Now, DateTime.Now);
+        return transaction.ContractAddress;
     }
 }
+//0x9907a0cf64ec9fbf6ed8fd4971090de88222a9ac
+//1654022283
+//1654122283

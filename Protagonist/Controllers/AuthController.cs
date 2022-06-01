@@ -70,7 +70,7 @@ namespace JwtWebApiTutorial.Controllers
             {
                 return Task.FromResult<ActionResult<string>>(Unauthorized("Invalid Refresh Token."));
             }
-            else if(_user.TokenExpires < DateTime.Now)
+            if(_user.TokenExpires < DateTime.Now)
             {
                 return Task.FromResult<ActionResult<string>>(Unauthorized("Token expired."));
             }
