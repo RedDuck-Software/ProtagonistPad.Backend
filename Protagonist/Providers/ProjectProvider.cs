@@ -16,13 +16,20 @@ public class ProjectProvider : IProjectProvider
     {
         _projectsDb = projectsDb;
     }
-
+    
     public async Task<IEnumerable<ProjectModel>> GetAll()
     {
         return await _projectsDb.Projects.ToListAsync();
     }
     
-    public async Task CreateProject(ProjectModel projectModel)
+    public async Task<IEnumerable<ProjectModel>> GetApprovedProjects()
+    {
+        var projects = await _projectsDb.Projects.ToListAsync();
+        var approvedProjects = projects.Where(p => p.Status == ProjectStatus.Approved).ToList();
+        return approvedProjects;
+    }
+    
+    public async Task ApplyProject(ProjectModel projectModel)
     {
         await _projectsDb.Projects.AddAsync(new ProjectModel(projectModel, CurrentId()));
         await _projectsDb.SaveChangesAsync();
@@ -49,11 +56,21 @@ public class ProjectProvider : IProjectProvider
         
         await _projectsDb.SaveChangesAsync();
     }
+    
+    public async Task RejectProject(int id)
+    {
+        var project = await _projectsDb.Projects.FindAsync(id);
+        if (project == null) return;
+        project.Status = ProjectStatus.Rejected;
+        _projectsDb.Projects.Update(project);
+        await _projectsDb.SaveChangesAsync();
+    }
+    
     public async Task DeleteProject(int id)
     {
-        var currentUser = await _projectsDb.Projects.FindAsync(id);
-        if (currentUser == null) return;
-        _projectsDb.Projects.Remove(currentUser);
+        var project = await _projectsDb.Projects.FindAsync(id);
+        if (project == null) return;
+        _projectsDb.Projects.Remove(project);
         await _projectsDb.SaveChangesAsync();
     }
 }

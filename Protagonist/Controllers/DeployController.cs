@@ -24,7 +24,7 @@ public class DeployController : ControllerBase
     }
     
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<string>> DeployProjectViaData(int id, int softCap, int hardCap, string busd, string launchedToken, int saleStartTime, int saleEndTime, int gas)
     {
         var account = new Account(_chainDataService.PrivateKey, Chain.Rinkeby);
@@ -54,15 +54,12 @@ public class DeployController : ControllerBase
                     {
                         Address = transaction.ContractAddress, Id = id, ProjectName = "project" + id, HardCap = hardCap, SoftCap = softCap
                     };
-                await _projectProvider.CreateProject(project);
+                await _projectProvider.ApplyProject(project);
             }
             project.Address = transaction.ContractAddress;
-            project.Status = true;
+            project.Status = ProjectStatus.Approved;
             await _projectProvider.UpdateProject(project);
         }
         return transaction.ContractAddress;
     }
 }
-//0x9907a0cf64ec9fbf6ed8fd4971090de88222a9ac
-//1654022283
-//1654122283

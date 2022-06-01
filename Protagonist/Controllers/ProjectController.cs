@@ -16,26 +16,38 @@ public class ProjectController : ControllerBase
     }
     
     [HttpGet("project-list")]
-    public Task<IEnumerable<ProjectModel>> Get()
+    public Task<IEnumerable<ProjectModel>> GetAllProjects()
     {
         return _projectProvider.GetAll();
     }
-
-    [HttpGet("count")]
+    [HttpGet("approved-project-list")]
+    public Task<IEnumerable<ProjectModel>> GetApprovedProjects()
+    {
+        return _projectProvider.GetApprovedProjects();
+    }
+    
+    [HttpGet("projects-count")]
     public int ProjectsCount()
     {
         return _projectProvider.GetAll().Result.Count();
     }
+    
+    [HttpGet("approved-projects-count")]
+    public int ApprovedProjectsCount()
+    {
+        return _projectProvider.GetApprovedProjects().Result.Count();
+    }
 
-    [HttpGet("{id:int}")]
-    public Task<ProjectModel> Get(int id)
+    [HttpGet("{id:int}")] //from all projects
+    public Task<ProjectModel?> GetById(int id)
     {
         return _projectProvider.GetById(id);
     }
+    
     [HttpPost("create-project")]
-    public Task Create(ProjectModel projectModel)
+    public Task ApplyProject(ProjectModel projectModel)
     {
-        return _projectProvider.CreateProject(projectModel);
+        return _projectProvider.ApplyProject(projectModel);
     }
 
     [HttpPut("update-project"), Authorize(Roles="Admin")]
@@ -48,5 +60,11 @@ public class ProjectController : ControllerBase
     public Task Delete(int id)
     {
         return _projectProvider.DeleteProject(id);
+    }
+
+    [HttpPost("{id:int}"), Authorize(Roles="Admin")]
+    public Task RejectProject(int id)
+    {
+        return _projectProvider.RejectProject(id);
     }
 }

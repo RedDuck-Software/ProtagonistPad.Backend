@@ -12,7 +12,7 @@ public class ProjectModel
     public decimal TokenPrice { get; set; }
     public string? Address { get; set; }
     public string? UserTelegram { get; set; }
-    public bool? Status { get; set; }
+    public ProjectStatus Status { get; set; }
     public ProjectModel() { }
     public ProjectModel(ProjectModel projectModel, int currentId)
     {
@@ -25,6 +25,12 @@ public class ProjectModel
         TokenPrice = projectModel.TokenPrice;
         Address = projectModel.Address;
         UserTelegram = projectModel.UserTelegram;
-        Status = null;
+        Status = ProjectStatus.Pending;
     }
+}
+public enum ProjectStatus
+{
+    Approved,
+    Rejected,
+    Pending
 }
