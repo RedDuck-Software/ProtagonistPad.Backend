@@ -11,11 +11,11 @@ public class ProjectModel
     public int Duration { get; set; }
     public decimal TokenPrice { get; set; }
     public string Address { get; set; } = string.Empty;
+    public string TokenFounder { get; set; } = string.Empty;
     public string UserTelegram { get; set; } = string.Empty;
     public ProjectStatus Status { get; set; } = ProjectStatus.Pending;
     public int SaleStartTime { get; set; }
     public int SaleEndTime { get; set; }
-
     public ProjectModel() { }
     public ProjectModel(ProjectModel projectModel, int currentId)
     {
@@ -27,6 +27,7 @@ public class ProjectModel
         Duration = projectModel.Duration;
         TokenPrice = projectModel.TokenPrice;
         Address = projectModel.Address;
+        TokenFounder = projectModel.TokenFounder;
         UserTelegram = projectModel.UserTelegram;
         SaleStartTime = projectModel.SaleStartTime;
         SaleEndTime = projectModel.SaleEndTime;

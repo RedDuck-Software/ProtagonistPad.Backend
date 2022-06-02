@@ -1,4 +1,4 @@
-﻿using Example.Contracts.ProLaunchpad.ContractDefinition;
+﻿using System.Numerics;
 using Microsoft.AspNetCore.Mvc;
 using Nethereum.RPC.Eth.DTOs;
 using Protagonist.Services;
@@ -6,6 +6,7 @@ using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using Protagonist.Models;
 using Protagonist.Providers;
+using ProtagonistPad.Contracts.Contracts.ProtagonistPad.ContractDefinition;
 
 namespace Protagonist.Controllers;
 
@@ -31,17 +32,19 @@ public class DeployController : ControllerBase
         }
         var account = new Account(_chainDataService.PrivateKey, 5);
         var web3 = new Web3(account, _chainDataService.Url);
-        var proLaunchpadDeployment = new ProLaunchpadDeployment(ProLaunchpadDeploymentBase.Bytecode)
+        var proLaunchpadDeployment = new ProtagonistPadDeployment(ProtagonistPadDeploymentBase.Bytecode)
         {
             FromAddress = account.Address,
             SoftCap = project.SoftCap,
             HardCap = project.HardCap,
-            BUSD = _chainDataService.BusdAddress,
+            Busd = _chainDataService.BusdAddress,
+            TokenFounder = project.TokenFounder,
             LaunchedToken = project.Address,
             SaleStartTime = project.SaleStartTime,
-            SaleEndTime = project.SaleEndTime, 
+            SaleEndTime = project.SaleEndTime,
+            Price = (BigInteger)project.TokenPrice
         };
-        var transaction = await web3.Eth.GetContractDeploymentHandler<ProLaunchpadDeployment>().SendRequestAndWaitForReceiptAsync(proLaunchpadDeployment);
+        var transaction = await web3.Eth.GetContractDeploymentHandler<ProtagonistPadDeployment>().SendRequestAndWaitForReceiptAsync(proLaunchpadDeployment);
         if (transaction.Succeeded())
         {
             project.Address = transaction.ContractAddress;

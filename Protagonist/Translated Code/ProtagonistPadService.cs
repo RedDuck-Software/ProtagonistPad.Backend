@@ -1,38 +1,43 @@
-using System.Diagnostics.CodeAnalysis;
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.Numerics;
+using Nethereum.Hex.HexTypes;
+using Nethereum.ABI.FunctionEncoding.Attributes;
+using Nethereum.Web3;
 using Nethereum.RPC.Eth.DTOs;
+using Nethereum.Contracts.CQS;
 using Nethereum.Contracts.ContractHandlers;
-using Example.Contracts.ProLaunchpad.ContractDefinition;
-// ReSharper disable InconsistentNaming
+using Nethereum.Contracts;
+using System.Threading;
+using ProtagonistPad.Contracts.Contracts.ProtagonistPad.ContractDefinition;
 // ReSharper disable All
-#pragma warning disable CS8625
 
-namespace Example.Contracts.ProLaunchpad
+namespace ProtagonistPad.Contracts.Contracts.ProtagonistPad
 {
-    [SuppressMessage("ReSharper", "IdentifierTypo")]
-    public partial class ProLaunchpadService
+    public partial class ProtagonistPadService
     {
-        public static Task<TransactionReceipt> DeployContractAndWaitForReceiptAsync(Nethereum.Web3.Web3 web3, ProLaunchpadDeployment proLaunchpadDeployment, CancellationTokenSource cancellationTokenSource = null)
+        public static Task<TransactionReceipt> DeployContractAndWaitForReceiptAsync(Nethereum.Web3.Web3 web3, ProtagonistPadDeployment protagonistPadDeployment, CancellationTokenSource cancellationTokenSource = null)
         {
-            return web3.Eth.GetContractDeploymentHandler<ProLaunchpadDeployment>().SendRequestAndWaitForReceiptAsync(proLaunchpadDeployment, cancellationTokenSource);
+            return web3.Eth.GetContractDeploymentHandler<ProtagonistPadDeployment>().SendRequestAndWaitForReceiptAsync(protagonistPadDeployment, cancellationTokenSource);
         }
 
-        public static Task<string> DeployContractAsync(Nethereum.Web3.Web3 web3, ProLaunchpadDeployment proLaunchpadDeployment)
+        public static Task<string> DeployContractAsync(Nethereum.Web3.Web3 web3, ProtagonistPadDeployment protagonistPadDeployment)
         {
-            return web3.Eth.GetContractDeploymentHandler<ProLaunchpadDeployment>().SendRequestAsync(proLaunchpadDeployment);
+            return web3.Eth.GetContractDeploymentHandler<ProtagonistPadDeployment>().SendRequestAsync(protagonistPadDeployment);
         }
 
-        public static async Task<ProLaunchpadService> DeployContractAndGetServiceAsync(Nethereum.Web3.Web3 web3, ProLaunchpadDeployment proLaunchpadDeployment, CancellationTokenSource cancellationTokenSource = null)
+        public static async Task<ProtagonistPadService> DeployContractAndGetServiceAsync(Nethereum.Web3.Web3 web3, ProtagonistPadDeployment protagonistPadDeployment, CancellationTokenSource cancellationTokenSource = null)
         {
-            var receipt = await DeployContractAndWaitForReceiptAsync(web3, proLaunchpadDeployment, cancellationTokenSource);
-            return new ProLaunchpadService(web3, receipt.ContractAddress);
+            var receipt = await DeployContractAndWaitForReceiptAsync(web3, protagonistPadDeployment, cancellationTokenSource);
+            return new ProtagonistPadService(web3, receipt.ContractAddress);
         }
 
         protected Nethereum.Web3.Web3 Web3{ get; }
 
         public ContractHandler ContractHandler { get; }
 
-        public ProLaunchpadService(Nethereum.Web3.Web3 web3, string contractAddress)
+        public ProtagonistPadService(Nethereum.Web3.Web3 web3, string contractAddress)
         {
             Web3 = web3;
             ContractHandler = web3.Eth.GetContractHandler(contractAddress);
@@ -47,6 +52,17 @@ namespace Example.Contracts.ProLaunchpad
         public Task<string> BUSDQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<BUSDFunction, string>(null, blockParameter);
+        }
+
+        public Task<bool> AllowRefundQueryAsync(AllowRefundFunction allowRefundFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<AllowRefundFunction, bool>(allowRefundFunction, blockParameter);
+        }
+
+        
+        public Task<bool> AllowRefundQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<AllowRefundFunction, bool>(null, blockParameter);
         }
 
         public Task<string> ClaimVestedTokensRequestAsync(ClaimVestedTokensFunction claimVestedTokensFunction)
@@ -99,30 +115,52 @@ namespace Example.Contracts.ProLaunchpad
             return ContractHandler.QueryAsync<DurationFunction, BigInteger>(null, blockParameter);
         }
 
-        public Task<string> FundVestingRequestAsync(FundVestingFunction fundVestingFunction)
+        public Task<string> EnableRefundRequestAsync(EnableRefundFunction enableRefundFunction)
         {
-             return ContractHandler.SendRequestAsync(fundVestingFunction);
+             return ContractHandler.SendRequestAsync(enableRefundFunction);
         }
 
-        public Task<TransactionReceipt> FundVestingRequestAndWaitForReceiptAsync(FundVestingFunction fundVestingFunction, CancellationTokenSource cancellationToken = null)
+        public Task<string> EnableRefundRequestAsync()
         {
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(fundVestingFunction, cancellationToken);
+             return ContractHandler.SendRequestAsync<EnableRefundFunction>();
         }
 
-        public Task<string> FundVestingRequestAsync(BigInteger totalTokens)
+        public Task<TransactionReceipt> EnableRefundRequestAndWaitForReceiptAsync(EnableRefundFunction enableRefundFunction, CancellationTokenSource cancellationToken = null)
         {
-            var fundVestingFunction = new FundVestingFunction();
-                fundVestingFunction.TotalTokens = totalTokens;
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(enableRefundFunction, cancellationToken);
+        }
+
+        public Task<TransactionReceipt> EnableRefundRequestAndWaitForReceiptAsync(CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync<EnableRefundFunction>(null, cancellationToken);
+        }
+
+        public Task<BigInteger> GetFundsQueryAsync(GetFundsFunction getFundsFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetFundsFunction, BigInteger>(getFundsFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> GetFundsQueryAsync(string beneficiary, BlockParameter blockParameter = null)
+        {
+            var getFundsFunction = new GetFundsFunction();
+                getFundsFunction.Beneficiary = beneficiary;
             
-             return ContractHandler.SendRequestAsync(fundVestingFunction);
+            return ContractHandler.QueryAsync<GetFundsFunction, BigInteger>(getFundsFunction, blockParameter);
         }
 
-        public Task<TransactionReceipt> FundVestingRequestAndWaitForReceiptAsync(BigInteger totalTokens, CancellationTokenSource cancellationToken = null)
+        public Task<BigInteger> GetReleasableAmountQueryAsync(GetReleasableAmountFunction getReleasableAmountFunction, BlockParameter blockParameter = null)
         {
-            var fundVestingFunction = new FundVestingFunction();
-                fundVestingFunction.TotalTokens = totalTokens;
+            return ContractHandler.QueryAsync<GetReleasableAmountFunction, BigInteger>(getReleasableAmountFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> GetReleasableAmountQueryAsync(string beneficiary, BlockParameter blockParameter = null)
+        {
+            var getReleasableAmountFunction = new GetReleasableAmountFunction();
+                getReleasableAmountFunction.Beneficiary = beneficiary;
             
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(fundVestingFunction, cancellationToken);
+            return ContractHandler.QueryAsync<GetReleasableAmountFunction, BigInteger>(getReleasableAmountFunction, blockParameter);
         }
 
         public Task<GetVestingOutputDTO> GetVestingQueryAsync(GetVestingFunction getVestingFunction, BlockParameter blockParameter = null)
@@ -138,15 +176,15 @@ namespace Example.Contracts.ProLaunchpad
             return ContractHandler.QueryDeserializingToObjectAsync<GetVestingFunction, GetVestingOutputDTO>(getVestingFunction, blockParameter);
         }
 
-        public Task<BigInteger> GetVestingCountQueryAsync(GetVestingCountFunction getVestingCountFunction, BlockParameter blockParameter = null)
+        public Task<BigInteger> GetWithdrawableTokensAmountQueryAsync(GetWithdrawableTokensAmountFunction getWithdrawableTokensAmountFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<GetVestingCountFunction, BigInteger>(getVestingCountFunction, blockParameter);
+            return ContractHandler.QueryAsync<GetWithdrawableTokensAmountFunction, BigInteger>(getWithdrawableTokensAmountFunction, blockParameter);
         }
 
         
-        public Task<BigInteger> GetVestingCountQueryAsync(BlockParameter blockParameter = null)
+        public Task<BigInteger> GetWithdrawableTokensAmountQueryAsync(BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<GetVestingCountFunction, BigInteger>(null, blockParameter);
+            return ContractHandler.QueryAsync<GetWithdrawableTokensAmountFunction, BigInteger>(null, blockParameter);
         }
 
         public Task<BigInteger> HardCapQueryAsync(HardCapFunction hardCapFunction, BlockParameter blockParameter = null)
@@ -158,6 +196,26 @@ namespace Example.Contracts.ProLaunchpad
         public Task<BigInteger> HardCapQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<HardCapFunction, BigInteger>(null, blockParameter);
+        }
+
+        public Task<string> InitRequestAsync(InitFunction initFunction)
+        {
+             return ContractHandler.SendRequestAsync(initFunction);
+        }
+
+        public Task<string> InitRequestAsync()
+        {
+             return ContractHandler.SendRequestAsync<InitFunction>();
+        }
+
+        public Task<TransactionReceipt> InitRequestAndWaitForReceiptAsync(InitFunction initFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(initFunction, cancellationToken);
+        }
+
+        public Task<TransactionReceipt> InitRequestAndWaitForReceiptAsync(CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync<InitFunction>(null, cancellationToken);
         }
 
         public Task<string> OwnerQueryAsync(OwnerFunction ownerFunction, BlockParameter blockParameter = null)
@@ -208,6 +266,26 @@ namespace Example.Contracts.ProLaunchpad
                 purchaseTokensFunction.Amount = amount;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(purchaseTokensFunction, cancellationToken);
+        }
+
+        public Task<string> RefundRequestAsync(RefundFunction refundFunction)
+        {
+             return ContractHandler.SendRequestAsync(refundFunction);
+        }
+
+        public Task<string> RefundRequestAsync()
+        {
+             return ContractHandler.SendRequestAsync<RefundFunction>();
+        }
+
+        public Task<TransactionReceipt> RefundRequestAndWaitForReceiptAsync(RefundFunction refundFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(refundFunction, cancellationToken);
+        }
+
+        public Task<TransactionReceipt> RefundRequestAndWaitForReceiptAsync(CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync<RefundFunction>(null, cancellationToken);
         }
 
         public Task<string> RenounceOwnershipRequestAsync(RenounceOwnershipFunction renounceOwnershipFunction)
@@ -289,6 +367,32 @@ namespace Example.Contracts.ProLaunchpad
             return ContractHandler.QueryAsync<SaleStartTimeFunction, BigInteger>(null, blockParameter);
         }
 
+        public Task<string> SetTokenFounderRequestAsync(SetTokenFounderFunction setTokenFounderFunction)
+        {
+             return ContractHandler.SendRequestAsync(setTokenFounderFunction);
+        }
+
+        public Task<TransactionReceipt> SetTokenFounderRequestAndWaitForReceiptAsync(SetTokenFounderFunction setTokenFounderFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(setTokenFounderFunction, cancellationToken);
+        }
+
+        public Task<string> SetTokenFounderRequestAsync(string newTokenFounder)
+        {
+            var setTokenFounderFunction = new SetTokenFounderFunction();
+                setTokenFounderFunction.NewTokenFounder = newTokenFounder;
+            
+             return ContractHandler.SendRequestAsync(setTokenFounderFunction);
+        }
+
+        public Task<TransactionReceipt> SetTokenFounderRequestAndWaitForReceiptAsync(string newTokenFounder, CancellationTokenSource cancellationToken = null)
+        {
+            var setTokenFounderFunction = new SetTokenFounderFunction();
+                setTokenFounderFunction.NewTokenFounder = newTokenFounder;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(setTokenFounderFunction, cancellationToken);
+        }
+
         public Task<string> SetVestingRequestAsync(SetVestingFunction setVestingFunction)
         {
              return ContractHandler.SendRequestAsync(setVestingFunction);
@@ -299,39 +403,26 @@ namespace Example.Contracts.ProLaunchpad
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setVestingFunction, cancellationToken);
         }
 
-        public Task<string> SetVestingRequestAsync(BigInteger start, BigInteger cliff, BigInteger duration, BigInteger slicePeriodSeconds, bool revocable)
+        public Task<string> SetVestingRequestAsync(BigInteger start, BigInteger cliff, BigInteger duration, bool revocable)
         {
             var setVestingFunction = new SetVestingFunction();
                 setVestingFunction.Start = start;
                 setVestingFunction.Cliff = cliff;
                 setVestingFunction.Duration = duration;
-                setVestingFunction.SlicePeriodSeconds = slicePeriodSeconds;
                 setVestingFunction.Revocable = revocable;
             
              return ContractHandler.SendRequestAsync(setVestingFunction);
         }
 
-        public Task<TransactionReceipt> SetVestingRequestAndWaitForReceiptAsync(BigInteger start, BigInteger cliff, BigInteger duration, BigInteger slicePeriodSeconds, bool revocable, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> SetVestingRequestAndWaitForReceiptAsync(BigInteger start, BigInteger cliff, BigInteger duration, bool revocable, CancellationTokenSource cancellationToken = null)
         {
             var setVestingFunction = new SetVestingFunction();
                 setVestingFunction.Start = start;
                 setVestingFunction.Cliff = cliff;
                 setVestingFunction.Duration = duration;
-                setVestingFunction.SlicePeriodSeconds = slicePeriodSeconds;
                 setVestingFunction.Revocable = revocable;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setVestingFunction, cancellationToken);
-        }
-
-        public Task<BigInteger> SlicePeriodSecondsQueryAsync(SlicePeriodSecondsFunction slicePeriodSecondsFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<SlicePeriodSecondsFunction, BigInteger>(slicePeriodSecondsFunction, blockParameter);
-        }
-
-        
-        public Task<BigInteger> SlicePeriodSecondsQueryAsync(BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<SlicePeriodSecondsFunction, BigInteger>(null, blockParameter);
         }
 
         public Task<BigInteger> SoftCapQueryAsync(SoftCapFunction softCapFunction, BlockParameter blockParameter = null)
@@ -356,32 +447,6 @@ namespace Example.Contracts.ProLaunchpad
             return ContractHandler.QueryAsync<StartFunction, BigInteger>(null, blockParameter);
         }
 
-        public Task<string> StartPurchaseRequestAsync(StartPurchaseFunction startPurchaseFunction)
-        {
-             return ContractHandler.SendRequestAsync(startPurchaseFunction);
-        }
-
-        public Task<TransactionReceipt> StartPurchaseRequestAndWaitForReceiptAsync(StartPurchaseFunction startPurchaseFunction, CancellationTokenSource cancellationToken = null)
-        {
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(startPurchaseFunction, cancellationToken);
-        }
-
-        public Task<string> StartPurchaseRequestAsync(BigInteger price)
-        {
-            var startPurchaseFunction = new StartPurchaseFunction();
-                startPurchaseFunction.Price = price;
-            
-             return ContractHandler.SendRequestAsync(startPurchaseFunction);
-        }
-
-        public Task<TransactionReceipt> StartPurchaseRequestAndWaitForReceiptAsync(BigInteger price, CancellationTokenSource cancellationToken = null)
-        {
-            var startPurchaseFunction = new StartPurchaseFunction();
-                startPurchaseFunction.Price = price;
-            
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(startPurchaseFunction, cancellationToken);
-        }
-
         public Task<string> TokenQueryAsync(TokenFunction tokenFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<TokenFunction, string>(tokenFunction, blockParameter);
@@ -393,15 +458,26 @@ namespace Example.Contracts.ProLaunchpad
             return ContractHandler.QueryAsync<TokenFunction, string>(null, blockParameter);
         }
 
-        public Task<BigInteger> TotalBUSDReceivedQueryAsync(TotalBUSDReceivedFunction totalBUSDReceivedFunction, BlockParameter blockParameter = null)
+        public Task<string> TokenFounderQueryAsync(TokenFounderFunction tokenFounderFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<TotalBUSDReceivedFunction, BigInteger>(totalBUSDReceivedFunction, blockParameter);
+            return ContractHandler.QueryAsync<TokenFounderFunction, string>(tokenFounderFunction, blockParameter);
         }
 
         
-        public Task<BigInteger> TotalBUSDReceivedQueryAsync(BlockParameter blockParameter = null)
+        public Task<string> TokenFounderQueryAsync(BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<TotalBUSDReceivedFunction, BigInteger>(null, blockParameter);
+            return ContractHandler.QueryAsync<TokenFounderFunction, string>(null, blockParameter);
+        }
+
+        public Task<BigInteger> TotalBUSDAmountQueryAsync(TotalBUSDAmountFunction totalBUSDAmountFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<TotalBUSDAmountFunction, BigInteger>(totalBUSDAmountFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> TotalBUSDAmountQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<TotalBUSDAmountFunction, BigInteger>(null, blockParameter);
         }
 
         public Task<BigInteger> TotalClaimableAmountQueryAsync(TotalClaimableAmountFunction totalClaimableAmountFunction, BlockParameter blockParameter = null)
@@ -424,6 +500,28 @@ namespace Example.Contracts.ProLaunchpad
         public Task<BigInteger> TotalPurchasedQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<TotalPurchasedFunction, BigInteger>(null, blockParameter);
+        }
+
+        public Task<BigInteger> TotalUnreleasedQueryAsync(TotalUnreleasedFunction totalUnreleasedFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<TotalUnreleasedFunction, BigInteger>(totalUnreleasedFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> TotalUnreleasedQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<TotalUnreleasedFunction, BigInteger>(null, blockParameter);
+        }
+
+        public Task<BigInteger> TotalVestingAmountQueryAsync(TotalVestingAmountFunction totalVestingAmountFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<TotalVestingAmountFunction, BigInteger>(totalVestingAmountFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> TotalVestingAmountQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<TotalVestingAmountFunction, BigInteger>(null, blockParameter);
         }
 
         public Task<string> TransferOwnershipRequestAsync(TransferOwnershipFunction transferOwnershipFunction)
@@ -450,17 +548,6 @@ namespace Example.Contracts.ProLaunchpad
                 transferOwnershipFunction.NewOwner = newOwner;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(transferOwnershipFunction, cancellationToken);
-        }
-
-        public Task<BigInteger> VestingTotalAmountQueryAsync(VestingTotalAmountFunction vestingTotalAmountFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<VestingTotalAmountFunction, BigInteger>(vestingTotalAmountFunction, blockParameter);
-        }
-
-        
-        public Task<BigInteger> VestingTotalAmountQueryAsync(BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<VestingTotalAmountFunction, BigInteger>(null, blockParameter);
         }
 
         public Task<string> WithdrawFundsRequestAsync(WithdrawFundsFunction withdrawFundsFunction)
@@ -513,6 +600,34 @@ namespace Example.Contracts.ProLaunchpad
                 withdrawNotSoldTokensFunction.Recipient = recipient;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(withdrawNotSoldTokensFunction, cancellationToken);
+        }
+
+        public Task<string> WithdrawTokensRequestAsync(WithdrawTokensFunction withdrawTokensFunction)
+        {
+             return ContractHandler.SendRequestAsync(withdrawTokensFunction);
+        }
+
+        public Task<TransactionReceipt> WithdrawTokensRequestAndWaitForReceiptAsync(WithdrawTokensFunction withdrawTokensFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(withdrawTokensFunction, cancellationToken);
+        }
+
+        public Task<string> WithdrawTokensRequestAsync(string recipient, BigInteger amount)
+        {
+            var withdrawTokensFunction = new WithdrawTokensFunction();
+                withdrawTokensFunction.Recipient = recipient;
+                withdrawTokensFunction.Amount = amount;
+            
+             return ContractHandler.SendRequestAsync(withdrawTokensFunction);
+        }
+
+        public Task<TransactionReceipt> WithdrawTokensRequestAndWaitForReceiptAsync(string recipient, BigInteger amount, CancellationTokenSource cancellationToken = null)
+        {
+            var withdrawTokensFunction = new WithdrawTokensFunction();
+                withdrawTokensFunction.Recipient = recipient;
+                withdrawTokensFunction.Amount = amount;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(withdrawTokensFunction, cancellationToken);
         }
     }
 }
