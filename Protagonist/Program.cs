@@ -17,6 +17,7 @@ builder.Services.AddDbContext<ProjectsDb>(options =>
 {
     options.UseSqlite(connectionString ?? throw new InvalidOperationException());
 });
+//builder.Services.AddMvcCore();
 builder.Services.AddScoped<ChainDataService>();
 builder.Services.AddControllers();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
@@ -64,3 +65,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+public partial class Program { }

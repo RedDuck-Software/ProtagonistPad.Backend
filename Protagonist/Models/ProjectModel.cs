@@ -10,7 +10,7 @@ public class ProjectModel
     public int SoftCap { get; set; }
     public int Duration { get; set; }
     public decimal TokenPrice { get; set; }
-    public string Address { get; set; } = string.Empty;
+    public string DeployedAddress { get; set; } = string.Empty;
     public string TokenFounder { get; set; } = string.Empty;
     public string UserTelegram { get; set; } = string.Empty;
     public ProjectStatus Status { get; set; } = ProjectStatus.Pending;
@@ -26,7 +26,7 @@ public class ProjectModel
         SoftCap = projectModel.SoftCap;
         Duration = projectModel.Duration;
         TokenPrice = projectModel.TokenPrice;
-        Address = projectModel.Address;
+        DeployedAddress = projectModel.DeployedAddress;
         TokenFounder = projectModel.TokenFounder;
         UserTelegram = projectModel.UserTelegram;
         SaleStartTime = projectModel.SaleStartTime;
