@@ -34,7 +34,7 @@ public class ProjectProvider : IProjectProvider
         return approvedProjects;
     }
     
-    public async Task ApplyProject(ProjectModel projectModel)
+    public async Task ApplyProject(ProjectModel? projectModel)
     {
         await _projectsDb.Projects.AddAsync(new ProjectModel(projectModel, CurrentId()));
         await _projectsDb.SaveChangesAsync();

@@ -14,8 +14,8 @@ public class ProjectModelValidator : AbstractValidator<ProjectModel>
         RuleFor(project => project.HardCap).GreaterThan(0).WithMessage("Hard cap can't be 0");
         RuleFor(project => project.Duration).GreaterThan(0).WithMessage("Duration can't be 0");
         RuleFor(project => project.TokenPrice).GreaterThan(0).WithMessage("Token price can't be 0");
-        RuleFor(project => project.TokenFounder[1]).Equal('x').WithMessage("Contract address is incorrect!");
-        RuleFor(project => project.TokenFounder).Length(42).WithMessage("Contract address is incorrect!");
+        RuleFor(project => project.TokenFounder.Length).Equal(42).WithMessage("Contract address is incorrect!");
+        RuleFor(project => project.TokenFounder[1]).Equal('x').When(project => project.TokenFounder.Length == 42).WithMessage("Contract address is incorrect!");
         RuleFor(project => project.HardCap).GreaterThan(project => project.SoftCap).WithMessage("Hard cap can't be lower soft cap");
     }
 }

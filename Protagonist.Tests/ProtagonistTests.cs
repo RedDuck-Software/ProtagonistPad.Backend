@@ -7,12 +7,20 @@ using Xunit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Protagonist.Models;
 using System.Text.Json;
+using Xunit.Abstractions;
 
 namespace ProtagonistTests;
 
 [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores")]
 public class ProtagonistTests : WebApplicationFactory<Program>
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public ProtagonistTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
     [Theory]
     [InlineData("0x433022c4066558e7a32d850f02d2da5ca782174d", 1, 2000, 1000, "Project Description", 150000, 200000, "SomeName", "0x433022c4066558e7a32d850f02d2da5ca782174d", 1, "@name")]
     [InlineData("0x433022c4066558e7a32d850f02d2da5ca782174d", 2, 3000000, 1000000, "Br-t-t-t Description", 3, 4, "SomeName", "0x433022c4066558e7a32d850f02d2da5ca782174d", 5, "@name")]
@@ -68,6 +76,30 @@ public class ProtagonistTests : WebApplicationFactory<Program>
         };
         using var jsonContent = new StringContent(JsonSerializer.Serialize(model));
         jsonContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+        using var response = await client.PostAsync("api/project/apply-project", jsonContent);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+    
+    [Fact]
+    public async Task PUT_ProjectModel_Responds_Unauthorized()
+    {
+        await using var application = new ProtagonistPlayground();
+        using var client = application.CreateClient();
+        using var jsonContent = new StringContent(JsonSerializer.Serialize(new ProjectModel()));
+        jsonContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+        using var response = await client.PutAsync("api/project/update-project", jsonContent);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+    
+    [Fact]
+    public async Task POST_ProjectModel_Responds_BadRequestA()
+    {
+        await using var application = new ProtagonistPlayground();
+        using var client = application.CreateClient();
+        var project = new ProjectModel();
+        using var jsonContent = new StringContent(JsonSerializer.Serialize(project));
+        jsonContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+        _testOutputHelper.WriteLine(jsonContent.ToString());
         using var response = await client.PostAsync("api/project/apply-project", jsonContent);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

@@ -9,6 +9,6 @@ public interface IProjectProvider
     public Task<ProjectModel?> GetById(int id);
     public Task<IEnumerable<ProjectModel>> GetAll();
     public Task<IEnumerable<ProjectModel>> GetApprovedProjects();
-    public Task ApplyProject(ProjectModel projectModel);
+    public Task ApplyProject(ProjectModel? projectModel);
     public Task UpdateProject(ProjectModel projectModel);
 }
