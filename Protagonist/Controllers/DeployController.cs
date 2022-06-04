@@ -39,7 +39,7 @@ public class DeployController : ControllerBase
             HardCap = project.HardCap,
             Busd = _chainDataService.BusdAddress,
             TokenFounder = project.TokenFounder,
-            LaunchedToken = project.Address,
+            LaunchedToken = project.DeployedAddress,
             SaleStartTime = project.SaleStartTime,
             SaleEndTime = project.SaleEndTime,
             Price = (BigInteger)project.TokenPrice
@@ -47,7 +47,7 @@ public class DeployController : ControllerBase
         var transaction = await web3.Eth.GetContractDeploymentHandler<ProtagonistPadDeployment>().SendRequestAndWaitForReceiptAsync(proLaunchpadDeployment);
         if (transaction.Succeeded())
         {
-            project.Address = transaction.ContractAddress;
+            project.DeployedAddress = transaction.ContractAddress;
             project.Status = ProjectStatus.Approved;
             await _projectProvider.UpdateProject(project);
         }
