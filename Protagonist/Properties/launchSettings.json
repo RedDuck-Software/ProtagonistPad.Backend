@@ -5,7 +5,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:5000",
+      "applicationUrl": "https://protagonist-api.herokuapp.com/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
