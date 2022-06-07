@@ -45,6 +45,7 @@ public class ProjectController : ControllerBase
         return _projectProvider.GetById(id);
     }
     
+    
     [HttpPost("apply-project")]
     public async Task<ActionResult> ApplyProject(ProjectModel projectModel)
     {
