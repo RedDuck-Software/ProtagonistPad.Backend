@@ -45,7 +45,7 @@ public class DeployController : ControllerBase
             SoftCap = project.SoftCap,
             HardCap = project.HardCap,
             Busd = _chainDataService.BusdAddress,
-            TokenFounder = project.TokenFounder,
+            TokenFounder = project.TokenOwnerAddress,
             LaunchedToken = project.TokenAddress,
             SaleStartTime = project.SaleStartTime,
             SaleEndTime = project.SaleEndTime,

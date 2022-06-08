@@ -9,7 +9,7 @@ public class ProjectModel
     public int Id { get; set; }
     public string UserName { get; set; } = string.Empty;
     public string UserTelegram { get; set; } = string.Empty;
-    public string TokenFounder { get; set; } = string.Empty;
+    public string TokenOwnerAddress { get; set; } = string.Empty;
     public string ProjectName { get; set; } = string.Empty;
     public string ProjectDescription { get; set; } = string.Empty;
     [SwaggerSchema(ReadOnly = true)]
@@ -38,7 +38,7 @@ public class ProjectModel
         Duration = projectModel.Duration;
         TokenPrice = projectModel.TokenPrice;
         TokenAddress = projectModel.TokenAddress;
-        TokenFounder = projectModel.TokenFounder;
+        TokenOwnerAddress = projectModel.TokenOwnerAddress;
         UserTelegram = projectModel.UserTelegram;
         SaleStartDateTime = projectModel.SaleStartDateTime;
         SaleEndDateTime = projectModel.SaleEndDateTime;
