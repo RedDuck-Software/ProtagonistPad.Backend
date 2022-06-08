@@ -16,35 +16,39 @@ public class ProjectController : ControllerBase
         _projectProvider = projectProvider;
     }
     
-    [HttpGet("project-list")]
-    public Task<IEnumerable<ProjectModel>> GetAllProjects()
+    [HttpGet("all-projects-list")]
+    public IEnumerable<ProjectModel> GetAllProjects()
     {
-        return _projectProvider.GetAll();
+        var projects = _projectProvider.GetAll().Result.ToList();
+        return projects;
     }
+    
     [HttpGet("approved-project-list")]
-    public Task<IEnumerable<ProjectModel>> GetApprovedProjects()
+    public IEnumerable<ProjectModel> GetApprovedProjects()
     {
-        return _projectProvider.GetApprovedProjects();
+        var approvedProjects = _projectProvider.GetAll().Result.Where(model => model.Status == ProjectStatus.Approved);
+        return approvedProjects;
     }
     
-    [HttpGet("projects-count")]
-    public int ProjectsCount()
+    [HttpGet("rejected-projects")]
+    public IEnumerable<ProjectModel> RejectedProjectList()
     {
-        return _projectProvider.GetAll().Result.Count();
+        var rejectedProjects = _projectProvider.GetAll().Result.Where(model => model.Status == ProjectStatus.Rejected);
+        return rejectedProjects;
     }
     
-    [HttpGet("approved-projects-count")]
-    public int ApprovedProjectsCount()
+    [HttpGet("pending-projects")]
+    public IEnumerable<ProjectModel> PendingProjectList()
     {
-        return _projectProvider.GetApprovedProjects().Result.Count();
+        var pendingProjects = _projectProvider.GetAll().Result.Where(model => model.Status == ProjectStatus.Pending);
+        return pendingProjects;
     }
-
-    [HttpGet("{id:int}")] //from all projects
+    
+    [HttpGet("{id:int}")]
     public Task<ProjectModel?> GetById(int id)
     {
         return _projectProvider.GetById(id);
     }
-    
     
     [HttpPost("apply-project")]
     public async Task<ActionResult> ApplyProject(ProjectModel projectModel)
@@ -55,7 +59,6 @@ public class ProjectController : ControllerBase
         {
             return BadRequest(result.Errors);
         }
-        Console.WriteLine("Valid: " + result.IsValid);
         await _projectProvider.ApplyProject(projectModel);
         return Ok();
     }
@@ -66,13 +69,7 @@ public class ProjectController : ControllerBase
         return Task.FromResult(Ok(_projectProvider.UpdateProject(projectModel)));
     }
     
-    [HttpDelete("{id:int}"), Authorize(Roles="Admin")]
-    public Task Delete(int id)
-    {
-        return _projectProvider.DeleteProject(id);
-    }
-
-    [HttpPost("{id:int}"), Authorize(Roles="Admin")]
+    [HttpPost("reject-project/{id:int}"), Authorize(Roles="Admin")]
     public Task RejectProject(int id)
     {
         return _projectProvider.RejectProject(id);

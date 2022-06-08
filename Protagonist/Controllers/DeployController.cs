@@ -6,6 +6,7 @@ using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using Protagonist.Models;
 using Protagonist.Providers;
+using Protagonist.Validation;
 using ProtagonistPad.Contracts.Contracts.ProtagonistPad.ContractDefinition;
 
 namespace Protagonist.Controllers;
@@ -30,6 +31,12 @@ public class DeployController : ControllerBase
         {
             return BadRequest();
         }
+        var validator = new DeployingValidator();
+        var result = await validator.ValidateAsync(project);
+        if (!result.IsValid)
+        {
+            return BadRequest(result.Errors);
+        }
         var account = new Account(_chainDataService.PrivateKey, 5);
         var web3 = new Web3(account, _chainDataService.Url);
         var proLaunchpadDeployment = new ProtagonistPadDeployment(ProtagonistPadDeploymentBase.Bytecode)
@@ -39,7 +46,7 @@ public class DeployController : ControllerBase
             HardCap = project.HardCap,
             Busd = _chainDataService.BusdAddress,
             TokenFounder = project.TokenFounder,
-            LaunchedToken = project.DeployedAddress,
+            LaunchedToken = project.TokenAddress,
             SaleStartTime = project.SaleStartTime,
             SaleEndTime = project.SaleEndTime,
             Price = (BigInteger)project.TokenPrice
@@ -47,7 +54,7 @@ public class DeployController : ControllerBase
         var transaction = await web3.Eth.GetContractDeploymentHandler<ProtagonistPadDeployment>().SendRequestAndWaitForReceiptAsync(proLaunchpadDeployment);
         if (transaction.Succeeded())
         {
-            project.DeployedAddress = transaction.ContractAddress;
+            project.ProjectDeployedAddress = transaction.ContractAddress;
             project.Status = ProjectStatus.Approved;
             await _projectProvider.UpdateProject(project);
         }

@@ -34,6 +34,7 @@ builder.Services.AddSwaggerGen(options => {
         Type = SecuritySchemeType.ApiKey
     });
     options.OperationFilter<SecurityRequirementsOperationFilter>();
+    options.EnableAnnotations();
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -55,7 +56,6 @@ var db = scope.ServiceProvider.GetRequiredService<ProjectsDb>();
 db.Database.EnsureCreated();
 app.UseSwagger();
 app.UseSwaggerUI();
-
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

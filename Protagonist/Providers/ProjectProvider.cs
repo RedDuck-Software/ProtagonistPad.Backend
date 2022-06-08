@@ -47,7 +47,7 @@ public class ProjectProvider : IProjectProvider
         
         project.UserName = projectModel.UserName;
         project.TokenPrice = projectModel.TokenPrice;
-        project.DeployedAddress = projectModel.DeployedAddress;
+        project.TokenAddress = projectModel.TokenAddress;
         project.Duration = project.Duration;
         project.HardCap = projectModel.HardCap;
         project.SoftCap = projectModel.SoftCap;
