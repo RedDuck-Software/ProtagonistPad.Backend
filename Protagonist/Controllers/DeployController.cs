@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nethereum.RPC.Eth.DTOs;
 using Protagonist.Services;
@@ -23,7 +24,7 @@ public class DeployController : ControllerBase
         _projectProvider = projectProvider;
     }
     
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public async Task<ActionResult<string>> DeployProjectViaData(int id)
     {
         var project = _projectProvider.GetById(id).Result;
