@@ -31,7 +31,7 @@ public class ProjectModel
     public ProjectModel(ProjectModel projectModel, int currentId)
     {
         Id = currentId;
-        ProjectName = projectModel.UserName;
+        ProjectName = projectModel.ProjectName;
         ProjectDescription = projectModel.ProjectDescription;
         HardCap = projectModel.HardCap;
         SoftCap = projectModel.SoftCap;
@@ -39,6 +39,7 @@ public class ProjectModel
         TokenPrice = projectModel.TokenPrice;
         TokenAddress = projectModel.TokenAddress;
         TokenOwnerAddress = projectModel.TokenOwnerAddress;
+        UserName = projectModel.UserName;
         UserTelegram = projectModel.UserTelegram;
         SaleStartDateTime = projectModel.SaleStartDateTime;
         SaleEndDateTime = projectModel.SaleEndDateTime;
