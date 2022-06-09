@@ -15,14 +15,7 @@ public class ProjectController : ControllerBase
     {
         _projectProvider = projectProvider;
     }
-    
-    [HttpGet("all-projects-list")]
-    public IEnumerable<ProjectModel> GetAllProjects()
-    {
-        var projects = _projectProvider.GetAll().Result.ToList();
-        return projects;
-    }
-    
+
     [HttpGet("approved-project-list")]
     public IEnumerable<ProjectModel> GetApprovedProjects()
     {
@@ -30,25 +23,6 @@ public class ProjectController : ControllerBase
         return approvedProjects;
     }
     
-    [HttpGet("rejected-projects")]
-    public IEnumerable<ProjectModel> RejectedProjectList()
-    {
-        var rejectedProjects = _projectProvider.GetAll().Result.Where(model => model.Status == ProjectStatus.Rejected);
-        return rejectedProjects;
-    }
-    
-    [HttpGet("pending-projects")]
-    public IEnumerable<ProjectModel> PendingProjectList()
-    {
-        var pendingProjects = _projectProvider.GetAll().Result.Where(model => model.Status == ProjectStatus.Pending);
-        return pendingProjects;
-    }
-    
-    [HttpGet("{id:int}")]
-    public Task<ProjectModel?> GetById(int id)
-    {
-        return _projectProvider.GetById(id);
-    }
     
     [HttpPost("apply-project")]
     public async Task<ActionResult> ApplyProject(ProjectModel projectModel)
