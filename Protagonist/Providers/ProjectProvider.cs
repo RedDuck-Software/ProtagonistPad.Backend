@@ -44,7 +44,7 @@ public class ProjectProvider : IProjectProvider
     {
         var project = await _projectsDb.Projects.FindAsync(projectModel.Id);
         if(project == null) return;
-        
+        project.Status = projectModel.Status;
         project.UserName = projectModel.UserName;
         project.TokenPrice = projectModel.TokenPrice;
         project.TokenAddress = projectModel.TokenAddress;
