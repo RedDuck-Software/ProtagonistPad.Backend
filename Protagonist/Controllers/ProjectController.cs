@@ -15,7 +15,14 @@ public class ProjectController : ControllerBase
     {
         _projectProvider = projectProvider;
     }
-
+    
+    [HttpGet("project-list"), Authorize(Roles = "Admin")]
+    public IEnumerable<ProjectModel> GetProjects()
+    {
+        var approvedProjects = _projectProvider.GetAll().Result;
+        return approvedProjects;
+    }
+    
     [HttpGet("approved-project-list")]
     public IEnumerable<ProjectModel> GetApprovedProjects()
     {
