@@ -8,6 +8,7 @@ public class ProjectModelValidator : AbstractValidator<ProjectModel>
     public ProjectModelValidator()
     {
         //RuleFor(project => project.TokenAddress.Length).Equal(42).WithMessage("TokenAddress length must be 42");
+        RuleFor(project => project.TokenImage).NotEmpty();
         RuleFor(project => project.ProjectName).NotEmpty().WithMessage("Project name can't be empty");
         RuleFor(project => project.ProjectDescription).NotEmpty().WithMessage("Project description name can't be empty");
         RuleFor(project => project.SoftCap).GreaterThan(0).WithMessage("Soft cap can't be 0");

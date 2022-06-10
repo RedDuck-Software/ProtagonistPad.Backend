@@ -14,6 +14,7 @@ public class ProjectModel
     public string ProjectDescription { get; set; } = string.Empty;
     [SwaggerSchema(ReadOnly = true)]
     public string ProjectDeployedAddress { get; set; } = string.Empty;
+    public string TokenImage { get; set; }
     public int HardCap { get; set; } 
     public int SoftCap { get; set; }
     public int Duration { get; set; }
@@ -32,6 +33,7 @@ public class ProjectModel
     {
         Id = currentId;
         ProjectName = projectModel.ProjectName;
+        TokenImage = projectModel.TokenImage;
         ProjectDescription = projectModel.ProjectDescription;
         HardCap = projectModel.HardCap;
         SoftCap = projectModel.SoftCap;

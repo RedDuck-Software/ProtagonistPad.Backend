@@ -22,7 +22,18 @@ public class ProjectController : ControllerBase
         var approvedProjects = _projectProvider.GetAll().Result;
         return approvedProjects;
     }
-    
+
+    [HttpGet("token-image/{id:int}")]
+    public async Task<ActionResult> GetTokenImage(int id)
+    {
+        var project = await _projectProvider.GetById(id);
+        if (project == null)
+        {
+            return BadRequest("Project doesn't exist");
+        }
+        return Ok(project.TokenImage);
+    }
+
     [HttpGet("approved-project-list")]
     public IEnumerable<ProjectModel> GetApprovedProjects()
     {
@@ -51,8 +62,14 @@ public class ProjectController : ControllerBase
     }
     
     [HttpPost("reject-project/{id:int}"), Authorize(Roles="Admin")]
-    public Task RejectProject(int id)
+    public async Task<IActionResult> RejectProject(int id)
     {
-        return _projectProvider.RejectProject(id);
+        var project = await _projectProvider.GetById(id);
+        if (project == null)
+        {
+            return BadRequest("Project doesn't exist");
+        }
+        await _projectProvider.RejectProject(id);
+        return Ok();
     }
 }
