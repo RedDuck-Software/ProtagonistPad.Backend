@@ -29,26 +29,6 @@ public class ProjectModel
     public DateTime SaleEndDateTime { get; set; }
 
     public ProjectModel() { }
-    public ProjectModel(ProjectModel projectModel, int currentId)
-    {
-        Id = currentId;
-        ProjectName = projectModel.ProjectName;
-        TokenImage = projectModel.TokenImage;
-        ProjectDescription = projectModel.ProjectDescription;
-        HardCap = projectModel.HardCap;
-        SoftCap = projectModel.SoftCap;
-        Duration = projectModel.Duration;
-        TokenPrice = projectModel.TokenPrice;
-        TokenAddress = projectModel.TokenAddress;
-        TokenOwnerAddress = projectModel.TokenOwnerAddress;
-        UserName = projectModel.UserName;
-        UserTelegram = projectModel.UserTelegram;
-        SaleStartDateTime = projectModel.SaleStartDateTime;
-        SaleEndDateTime = projectModel.SaleEndDateTime;
-        SaleStartTime = ConverterService.DateTimeToTimeStamp(SaleStartDateTime);
-        SaleEndTime = ConverterService.DateTimeToTimeStamp(SaleEndDateTime);
-        Status = ProjectStatus.Pending;
-    }
 }
 
 public enum ProjectStatus

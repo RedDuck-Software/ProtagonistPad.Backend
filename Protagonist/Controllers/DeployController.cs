@@ -27,10 +27,10 @@ public class DeployController : ControllerBase
     [HttpPost, Authorize(Roles = "Admin")]
     public async Task<ActionResult<string>> DeployProjectViaData(int id)
     {
-        var project = _projectProvider.GetById(id).Result;
+        var project = await _projectProvider.GetById(id);
         if (project == null)
         {
-            return BadRequest();
+            return BadRequest("could not find project");
         }
         var validator = new DeployingValidator();
         var result = await validator.ValidateAsync(project);

@@ -53,7 +53,7 @@ var app = builder.Build();
 
 using var scope = app.Services.CreateScope();
 var db = scope.ServiceProvider.GetRequiredService<ProjectsDb>();
-db.Database.EnsureCreated();
+db.Database.EnsureCreated(); // TODO: remove ?
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();

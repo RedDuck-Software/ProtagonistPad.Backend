@@ -87,8 +87,8 @@ namespace JwtWebApiTutorial.Controllers
             var refreshToken = new RefreshToken
             {
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                Expires = DateTime.Now.AddDays(7),
-                Created = DateTime.Now
+                Expires = DateTime.UtcNow.AddDays(7),
+                Created = DateTime.UtcNow
             };
             return refreshToken;
         }
@@ -122,7 +122,7 @@ namespace JwtWebApiTutorial.Controllers
 
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: credits);
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);

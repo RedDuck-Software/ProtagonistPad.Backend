@@ -1,16 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Protagonist.Models;
+using Protagonist.Services;
 
 namespace Protagonist.Providers;
 
 public class ProjectProvider : IProjectProvider
 {
     private readonly ProjectsDb _projectsDb;
-    private int CurrentId()
-    {
-        return !_projectsDb.Projects.Any()
-            ? 1 : 1 + _projectsDb.Projects.AsEnumerable().MaxBy(project => project.Id)!.Id;
-    }
 
     public ProjectProvider(ProjectsDb projectsDb)
     {
@@ -27,47 +23,45 @@ public class ProjectProvider : IProjectProvider
         return await _projectsDb.Projects.ToListAsync();
     }
     
-    public async Task<IEnumerable<ProjectModel>> GetApprovedProjects()
+    public Task<IEnumerable<ProjectModel>> GetApprovedProjects()
     {
-        var projects = await _projectsDb.Projects.ToListAsync();
-        var approvedProjects = projects.Where(p => p.Status == ProjectStatus.Approved).ToList();
-        return approvedProjects;
+        return _projectsDb.Projects.AsNoTracking().Where(i => i.Status == ProjectStatus.Approved)
+            .ToListAsync().ContinueWith(i => (IEnumerable<ProjectModel>)i.Result);
     }
     
-    public async Task ApplyProject(ProjectModel? projectModel)
+    public Task ApplyProject(ProjectModel projectModel) // TODO: DB Increment Primary Key Id 
     {
-        await _projectsDb.Projects.AddAsync(new ProjectModel(projectModel, CurrentId()));
-        await _projectsDb.SaveChangesAsync();
+        projectModel.SaleStartTime = new DateTimeOffset(projectModel.SaleStartDateTime).ToUnixTimeSeconds();
+        projectModel.SaleEndTime = new DateTimeOffset(projectModel.SaleEndDateTime).ToUnixTimeSeconds();
+        projectModel.Status = ProjectStatus.Pending;
+
+        _projectsDb.Attach(projectModel);
+        _projectsDb.Entry(projectModel).State = EntityState.Added;
+
+        return _projectsDb.SaveChangesAsync();
     }
     
-    public async Task UpdateProject(ProjectModel projectModel)
+    public Task UpdateProject(ProjectModel projectModel)
     {
-        var project = await _projectsDb.Projects.FindAsync(projectModel.Id);
-        if(project == null) return;
-        project.Status = projectModel.Status;
-        project.UserName = projectModel.UserName;
-        project.TokenPrice = projectModel.TokenPrice;
-        project.TokenAddress = projectModel.TokenAddress;
-        project.Duration = project.Duration;
-        project.HardCap = projectModel.HardCap;
-        project.SoftCap = projectModel.SoftCap;
-        project.ProjectDescription = projectModel.ProjectDescription;
-        project.ProjectName = projectModel.ProjectName;
-        await _projectsDb.SaveChangesAsync();
+        _projectsDb.Attach(projectModel);
+        _projectsDb.Entry(projectModel).State = EntityState.Modified;
+        return _projectsDb.SaveChangesAsync();
     }
 
     public async Task RejectProject(int id)
     {
         var project = await _projectsDb.Projects.FindAsync(id);
-        if (project == null) return;
-        project.Status = ProjectStatus.Rejected;
-        _projectsDb.Projects.Update(project);
+
+        if (project == null) return; // TODO: add logger / change without read (logger will not be relevant if we update without reading)
+
+        project.Status = ProjectStatus.Rejected; // TODO: Update without reading 
+
         await _projectsDb.SaveChangesAsync();
     }
     
     public async Task DeleteProject(int id)
     {
-        var project = await _projectsDb.Projects.FindAsync(id);
+        var project = await _projectsDb.Projects.FindAsync(id); // TODO: Delete without reading  
         if (project == null) return;
         _projectsDb.Projects.Remove(project);
         await _projectsDb.SaveChangesAsync();
