@@ -41,6 +41,13 @@ public class ProjectController : ControllerBase
         return approvedProjects;
     }
     
+    [HttpGet("get/{id:int}")]
+    public ProjectModel GetProjectById(int id)
+    {
+        var project = _projectProvider.GetAll().Result.Where(model => model.Status == ProjectStatus.Approved).ToList()[0];
+        return project;
+    }
+    
     
     [HttpPost("apply-project")]
     public async Task<ActionResult> ApplyProject(ProjectModel projectModel)
