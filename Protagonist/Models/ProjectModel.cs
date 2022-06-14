@@ -1,3 +1,4 @@
+using System.Globalization;
 using Protagonist.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -19,6 +20,8 @@ public class ProjectModel
     public int SoftCap { get; set; }
     public int Duration { get; set; }
     public decimal TokenPrice { get; set; }
+    public string TokenName { get; set; }
+    public string TokenSignature { get; set; }
     public string TokenAddress { get; set; } = string.Empty;
     public ProjectStatus Status { get; set; } = ProjectStatus.Pending;
     [SwaggerSchema(ReadOnly = true)]
@@ -42,6 +45,8 @@ public class ProjectModel
         TokenAddress = projectModel.TokenAddress;
         TokenOwnerAddress = projectModel.TokenOwnerAddress;
         UserName = projectModel.UserName;
+        TokenSignature = projectModel.TokenSignature;
+        TokenName = projectModel.TokenName;
         UserTelegram = projectModel.UserTelegram;
         SaleStartDateTime = projectModel.SaleStartDateTime;
         SaleEndDateTime = projectModel.SaleEndDateTime;
