@@ -33,7 +33,6 @@ public class ProtagonistTests : WebApplicationFactory<Program>
         using var client = application.CreateClient();
         var model = new ProjectModel()
         {
-            DeployedAddress = address,
             Duration = duration,
             HardCap = hardCap,
             SoftCap = softCap,
@@ -41,7 +40,6 @@ public class ProtagonistTests : WebApplicationFactory<Program>
             SaleStartTime = saleStartTime,
             SaleEndTime = saleEndTime,
             ProjectName = projectName,
-            TokenFounder = tokenFounder,
             TokenPrice = tokenPrice,
             UserTelegram = userTelegram
         };
@@ -62,7 +60,6 @@ public class ProtagonistTests : WebApplicationFactory<Program>
         using var client = application.CreateClient();
         var model = new ProjectModel()
         {
-            DeployedAddress = address,
             Duration = duration,
             HardCap = hardCap,
             SoftCap = softCap,
@@ -70,7 +67,6 @@ public class ProtagonistTests : WebApplicationFactory<Program>
             SaleStartTime = saleStartTime,
             SaleEndTime = saleEndTime,
             ProjectName = projectName,
-            TokenFounder = tokenFounder,
             TokenPrice = tokenPrice,
             UserTelegram = userTelegram
         };
